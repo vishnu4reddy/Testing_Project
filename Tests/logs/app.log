@@ -1,0 +1,6 @@
+2023-07-31 12:38:58,970 - DEBUG - Using proactor: IocpProactor
+2023-07-31 12:43:12,152 - INFO - Set up first fixture
+2023-07-31 12:43:12,152 - INFO - Set up second fixture
+2023-07-31 12:43:12,153 - INFO - In the test
+2023-07-31 12:43:12,153 - INFO - Clean up second fixture
+2023-07-31 12:43:12,154 - INFO - Clean up first fixture
