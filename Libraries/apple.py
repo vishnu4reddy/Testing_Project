@@ -48,15 +48,17 @@ class AppTesting:
         # self.apple_sign_in_button_pass.fill(password)
 
     # page.get_by_role("button", name="Sign In").click()
-    # page.frame_locator("iframe[name=\"aid-auth-widget\"]").get_by_label("Sign In with your Apple ID").click()
-    # page.frame_locator("iframe[name=\"aid-auth-widget\"]").get_by_label("Sign In with your Apple ID").fill("vishnuvardhanuv36@gmail.com")
-    # page.frame_locator("iframe[name=\"aid-auth-widget\"]").get_by_label("Continue").click()
-    # page.frame_locator("iframe[name=\"aid-auth-widget\"]").get_by_label("Password").fill("Chandra@12")
-    # page.frame_locator("iframe[name=\"aid-auth-widget\"]").get_by_label("Sign In", exact=True).click()
+    # page.frame_locator(
+    #     "iframe[name=\"aid-auth-widget\"]").get_by_label("Sign In with your Apple ID").click()
+    # page.frame_locator("iframe[name=\"aid-auth-widget\"]").get_by_label(
+    #     "Sign In with your Apple ID").fill("vishnuvardhanuv36@gmail.com")
+    # page.frame_locator(
+    #     "iframe[name=\"aid-auth-widget\"]").get_by_label("Continue").click()
+    # page.frame_locator(
+    #     "iframe[name=\"aid-auth-widget\"]").get_by_label("Password").fill("Chandra@12")
+    # page.frame_locator(
+    #     "iframe[name=\"aid-auth-widget\"]").get_by_label("Sign In", exact=True).click()
 
-
-# from selenium import webdriver
-# from selenium.webdriver.common.by import By
 
 # class YourTestClass:
 #     def __init__(self):
@@ -67,9 +69,12 @@ class AppTesting:
 #         driver.get("your_page_url_here")
 
 #         # Assign elements to instance variables
-#         self.sign_in = selfdriver.find_element(By.CSS_SELECTOR, "button[name='Sign In']")
-#         self.driver.switch_to.frame(self.driver.find_element(By.CSS_SELECTOR, "iframe[name='aid-auth-widget']"))
-#         self.apple_sign_in = self.driver.find_element(By.XPATH, "//button[contains(text(), 'Sign In with your Apple ID')]")
+        # self.sign_in = selfdriver.find_element(
+        #     By.CSS_SELECTOR, "button[name='Sign In']")
+        # self.driver.switch_to.frame(self.driver.find_element(
+        #     By.CSS_SELECTOR, "iframe[name='aid-auth-widget']"))
+        # self.apple_sign_in = self.driver.find_element(
+        #     By.XPATH, "//button[contains(text(), 'Sign In with your Apple ID')]")
 
 # # Create an instance of your class and use the elements as needed
 # your_instance = YourTestClass()
