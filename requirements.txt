@@ -109,7 +109,7 @@ traitlets==5.5.0
 trio==0.22.0
 trio-websocket==0.9.2
 typing_extensions==4.4.0
-urllib3==1.26.13
+urllib3==1.26.19
 wcwidth==0.2.5
 wheel==0.40.0
 wsproto==1.2.0
