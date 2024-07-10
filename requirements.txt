@@ -114,3 +114,4 @@ wcwidth==0.2.5
 wheel==0.40.0
 wsproto==1.2.0
 zope.interface==5.5.1
+zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
