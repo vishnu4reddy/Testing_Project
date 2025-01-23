@@ -1,39 +1,49 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-
-name: Python application
+name: Rebase Open PRs on Merge
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-permissions:
-  contents: read
+    branches:
+      - master  
 
 jobs:
-  build:
-
+  rebase:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.10"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
-      run: |
-        pytest
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Git
+        run: |
+          git config user.name "vishnu"
+          git config user.email "vreddy@msystechnologies"
+
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-get install gh
+        
+      - name: Get list of open PRs
+        id: pr_list
+        run: |
+          prs=$(gh pr list --state open --json number,headRefName --jq '.[] | "\(.number) \(.headRefName)"')
+          echo "::set-output name=prs::$prs"
+
+      - name: Rebase each open PR
+        run: |
+          for pr in $(echo "${{ steps.pr_list.outputs.prs }}" | tr " " "\n")
+          do
+            pr_number=$(echo $pr | awk '{print $1}')
+            pr_branch=$(echo $pr | awk '{print $2}')
+            
+            echo "Rebasing PR #$pr_number ($pr_branch)"
+
+            # Fetch the base branch (master)
+            git fetch origin master
+
+            # Checkout the PR branch and rebase onto the base branch
+            git checkout $pr_branch
+            git rebase origin/master
+
+            # Push the rebased branch (force-push safely)
+            git push origin $pr_branch --force-with-lease
+          done
