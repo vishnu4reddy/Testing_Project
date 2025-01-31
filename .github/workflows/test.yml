@@ -11,6 +11,10 @@ on:
         description: 'The directory where tests are located'
         required: false
         default: 'Tests'  # Default value, could be changed by user when triggering the workflow
+      marker:
+        description: 'The pytest marker to filter tests (e.g., "smoke")'
+        required: false
+        default: ''  # Default to running all tests if no marker is specified
 
 jobs:
   test:
@@ -34,7 +38,11 @@ jobs:
           pip install poetry && \
           poetry install && \
           cd ${GITHUB_EVENT_INPUTS_TEST_DIRECTORY} && \
-          pytest --alluredir=allure-results -vs || true && \
+          if [ -z \"${GITHUB_EVENT_INPUTS_MARKER}\" ]; then \
+            pytest --alluredir=allure-results -vs || true; \
+          else \
+            pytest -m \"${GITHUB_EVENT_INPUTS_MARKER}\" --alluredir=allure-results -vs || true; \
+          fi && \
           chmod -R 777 allure-results
         "
     
