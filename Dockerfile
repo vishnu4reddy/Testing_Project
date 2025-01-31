@@ -25,7 +25,7 @@ RUN curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
 RUN pip install poetry
 
 # Install dependencies
-COPY pyproject.toml poetry.lock /workspace/
+COPY pyproject.toml /workspace/
 RUN poetry install
 
 # Copy the rest of the application
