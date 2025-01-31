@@ -7,6 +7,10 @@ on:
         description: 'Branch to run the tests on'
         required: false
         default: 'main'
+      test_directory:
+        description: 'The directory where tests are located'
+        required: false
+        default: 'Tests'  # Default value, could be changed by user when triggering the workflow
 
 jobs:
   test:
@@ -29,19 +33,19 @@ jobs:
           python -m pip install --upgrade pip && \
           pip install poetry && \
           poetry install && \
-          cd Tests && \
+          cd ${GITHUB_EVENT_INPUTS_TEST_DIRECTORY} && \
           pytest --alluredir=allure-results -vs || true && \
           chmod -R 777 allure-results
         "
     
     - name: List contents of allure-results
-      run: docker run --rm -v $PWD:/workspace -w /workspace playwright-test ls -R Tests/allure-results  # Verify that the allure-results directory exists and contains files
+      run: docker run --rm -v $PWD:/workspace -w /workspace playwright-test ls -R ${GITHUB_EVENT_INPUTS_TEST_DIRECTORY}/allure-results  # Verify that the allure-results directory exists and contains files
 
     - name: Upload Allure report as artifact
       uses: actions/upload-artifact@v4
       with:
         name: allure-results
-        path: Tests/allure-results  # Upload the Allure results as an artifact
+        path: ${GITHUB_EVENT_INPUTS_TEST_DIRECTORY}/allure-results  # Upload the Allure results as an artifact
         if-no-files-found: warn
         compression-level: 6
         overwrite: false
