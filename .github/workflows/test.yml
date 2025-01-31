@@ -20,15 +20,18 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-    - name: Install dependencies
+    - name:  install dependencies
       run: |
-        python --version
-    - name: Ensure browsers are installed
-      run: python -m playwright install --with-deps
+        python -m venv venv
+        source venv/bin/activate  # Activating the virtual environment
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
     - name: Run your tests
-      run: pytest --tracing=retain-on-failure
+      run: |
+        source venv/bin/activate  # Ensure the virtual environment is active
+        pytest --tracing=retain-on-failure
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
         name: playwright-traces
-        path: test-results/
+        path: Tests
