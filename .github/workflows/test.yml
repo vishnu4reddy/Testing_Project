@@ -27,21 +27,27 @@ jobs:
         python -m pip install --upgrade pip
         pip install poetry
         poetry install
-        pip install allure-pytest  # Install allure-pytest for report generation
     - name: Run your tests and generate Allure report
       run: |
         source venv/bin/activate  # Ensure the virtual environment is active
         cd Tests
         pytest --alluredir=allure-results -vs || true # Generate Allure results in the specified directory
-    - name: Upload Allure report as artifact
-      uses: actions/upload-artifact@v4  # Use the latest supported version v4
-      with:
-        name: allure-results
-        path: allure-results  # Upload Allure results as artifact
-
+        chmod 777 allure-result
+    - name: Run your tests and generate Allure report
+      run: |
+        source venv/bin/activate
+        cd Tests
+        pytest --alluredir=allure-results -vs || true  # Generate Allure results
+        chmod -R 777 allure-results  # Ensure appropriate permissions
     - name: Upload Allure report as artifact
       uses: actions/upload-artifact@v4
       with:
         name: allure-results
-        path: allure-results  # Upload Allure results as artifact
-      # Path to Allure results
+        path: allure-results  # Upload the Allure results as an artifact
+    - name: Serve Allure Report
+      run: |
+        # Install Allure command-line tool
+        curl -sSL https://github.com/allure-framework/allure2/releases/download/2.18.1/allure-2.18.1.tgz | tar -xz -C /opt
+        # Serve the Allure report using the Allure command-line tool
+        /opt/allure-2.18.1/bin/allure serve allure-results
+      continue-on-error: true  # Allows the workflow to continue even if this step fails
