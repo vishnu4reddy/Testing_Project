@@ -39,9 +39,9 @@ jobs:
         name: allure-results
         path: allure-results  # Upload Allure results as artifact
 
-    - name: Serve Allure Report (optional)
-      uses: cypress-io/github-action@v4
+    - name: Upload Allure report as artifact
+      uses: actions/upload-artifact@v4
       with:
-        start: true  # This will start a web server to view the Allure report in the Action’s logs
-      env:
-        ALLURE_RESULTS_DIR: allure-results  # Path to Allure results
+        name: allure-results
+        path: allure-results  # Upload Allure results as artifact
+      # Path to Allure results
