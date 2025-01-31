@@ -34,7 +34,7 @@ jobs:
         cd Tests
         pytest --alluredir=allure-results -vs  # Generate Allure results in the specified directory
     - name: Upload Allure report as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3.1.0  # Use the updated version of upload-artifact
       with:
         name: allure-results
         path: allure-results  # Upload Allure results as artifact
