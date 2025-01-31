@@ -20,15 +20,28 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-    - name:  install dependencies
+    - name: Install dependencies
       run: |
         python -m venv venv
         source venv/bin/activate  # Activating the virtual environment
         python -m pip install --upgrade pip
         pip install poetry
         poetry install
-    - name: Run your tests
+        pip install allure-pytest  # Install allure-pytest for report generation
+    - name: Run your tests and generate Allure report
       run: |
         source venv/bin/activate  # Ensure the virtual environment is active
         cd Tests
-        pytest -vs
+        pytest --alluredir=allure-results -vs  # Generate Allure results in the specified directory
+    - name: Upload Allure report as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: allure-results
+        path: allure-results  # Upload Allure results as artifact
+
+    - name: Serve Allure Report (optional)
+      uses: cypress-io/github-action@v2
+      with:
+        start: true  # This will start a web server to view the Allure report in the Action’s logs
+      env:
+        ALLURE_RESULTS_DIR: allure-results  # Path to Allure results
