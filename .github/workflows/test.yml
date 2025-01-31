@@ -27,6 +27,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install poetry
         poetry install
+        pip install allure-commandline
     - name: Run your tests and generate Allure report
       run: |
         source venv/bin/activate  # Ensure the virtual environment is active
