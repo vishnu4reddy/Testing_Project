@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "your_project_name"
+name = "Testing_Project"
 version = "0.1.0"
 description = "A simple Python project with many packages"
 license = "MIT"
