@@ -34,19 +34,18 @@ jobs:
       run: |
         source venv/bin/activate  # Ensure the virtual environment is active
         cd Tests
-        pytest --alluredir=Tests\allure-results -vs || true  # Generate Allure results in the specified directory
-        chmod -R 777 Tests\allure-results  # Apply chmod on the allure-results directory
+        pytest --alluredir=allure-results -vs || true  # Generate Allure results in the specified directory
+        chmod -R 777 allure-results  # Ensure appropriate permissions on allure-results directory
+
+    - name: List contents of allure-results
+      run: ls -R Tests/allure-results  # Verify that the allure-results directory exists and contains files
 
     - name: Upload Allure report as artifact
       uses: actions/upload-artifact@v4
       with:
         name: allure-results
-        path: Tests\allure-results  # Upload the Allure results as an artifact
-
-    - name: Serve Allure Report
-      run: |
-        # Install Allure command-line tool
-        curl -sSL https://github.com/allure-framework/allure2/releases/download/2.18.1/allure-2.18.1.tgz | tar -xz -C /opt
-        # Serve the Allure report using the Allure command-line tool
-        /opt/allure-2.18.1/bin/allure serve allure-results
-      continue-on-error: true  # Allows the workflow to continue even if this step fails
+        path: Tests/allure-results  # Upload the Allure results as an artifact
+        if-no-files-found: warn
+        compression-level: 6
+        overwrite: false
+        include-hidden-files: false
