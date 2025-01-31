@@ -1,7 +1,7 @@
-name: Playwright Tests
+name: Playwright Tests in Docker
 
 on:
-  workflow_dispatch:  # Adding manual trigger option
+  workflow_dispatch:
     inputs:
       branch:
         description: 'Branch to run the tests on'
@@ -17,28 +17,25 @@ jobs:
       with:
         ref: ${{ github.event.inputs.branch || github.ref }}  # Use branch from input or default to current ref
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-
-    - name: Install dependencies
+    - name: Set up Docker
       run: |
-        python -m venv venv
-        source venv/bin/activate  # Activating the virtual environment
-        python -m pip install --upgrade pip
-        pip install poetry
-        poetry install
+        docker build -t playwright-test .  # Build the Docker image using the Dockerfile in the repo
 
-    - name: Run your tests and generate Allure report
+    - name: Run tests in Docker container
       run: |
-        source venv/bin/activate  # Ensure the virtual environment is active
-        cd Tests
-        pytest --alluredir=allure-results -vs || true  # Generate Allure results in the specified directory
-        chmod -R 777 allure-results  # Ensure appropriate permissions on allure-results directory
-
+        docker run --rm -v $PWD:/workspace -w /workspace playwright-test bash -c "
+          python -m venv venv && \
+          source venv/bin/activate && \
+          python -m pip install --upgrade pip && \
+          pip install poetry && \
+          poetry install && \
+          cd Tests && \
+          pytest --alluredir=allure-results -vs || true && \
+          chmod -R 777 allure-results
+        "
+    
     - name: List contents of allure-results
-      run: ls -R Tests/allure-results  # Verify that the allure-results directory exists and contains files
+      run: docker run --rm -v $PWD:/workspace -w /workspace playwright-test ls -R Tests/allure-results  # Verify that the allure-results directory exists and contains files
 
     - name: Upload Allure report as artifact
       uses: actions/upload-artifact@v4
