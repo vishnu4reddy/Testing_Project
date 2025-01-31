@@ -38,13 +38,14 @@ jobs:
           pip install poetry && \
           poetry install && \
           cd ${GITHUB_EVENT_INPUTS_TEST_DIRECTORY} && \
-          if [ -z \"${GITHUB_EVENT_INPUTS_MARKER}\" ]; then \
+          if [ -z \"${INPUT_MARKER}\" ]; then \
             pytest --alluredir=allure-results -vs || true; \
           else \
-            pytest -m \"${GITHUB_EVENT_INPUTS_MARKER}\" --alluredir=allure-results -vs || true; \
+            pytest -m \"${INPUT_MARKER}\" --alluredir=allure-results -vs || true; \
           fi && \
           chmod -R 777 allure-results
         "
+
     
     - name: List contents of allure-results
       run: docker run --rm -v $PWD:/workspace -w /workspace playwright-test ls -R ${GITHUB_EVENT_INPUTS_TEST_DIRECTORY}/allure-results  # Verify that the allure-results directory exists and contains files
