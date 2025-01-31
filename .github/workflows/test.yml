@@ -34,13 +34,13 @@ jobs:
         cd Tests
         pytest --alluredir=allure-results -vs  # Generate Allure results in the specified directory
     - name: Upload Allure report as artifact
-      uses: actions/upload-artifact@v3.1.0  # Use the updated version of upload-artifact
+      uses: actions/upload-artifact@v4  # Use the latest supported version v4
       with:
         name: allure-results
         path: allure-results  # Upload Allure results as artifact
 
     - name: Serve Allure Report (optional)
-      uses: cypress-io/github-action@v2
+      uses: cypress-io/github-action@v4
       with:
         start: true  # This will start a web server to view the Allure report in the Action’s logs
       env:
