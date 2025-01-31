@@ -16,10 +16,12 @@ jobs:
     - uses: actions/checkout@v4
       with:
         ref: ${{ github.event.inputs.branch || github.ref }}  # Use branch from input or default to current ref
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
+
     - name: Install dependencies
       run: |
         python -m venv venv
@@ -27,27 +29,24 @@ jobs:
         python -m pip install --upgrade pip
         pip install poetry
         poetry install
+
     - name: Run your tests and generate Allure report
       run: |
         source venv/bin/activate  # Ensure the virtual environment is active
         cd Tests
-        pytest --alluredir=allure-results -vs || true # Generate Allure results in the specified directory
-        chmod 777 allure-result
-    - name: Run your tests and generate Allure report
-      run: |
-        source venv/bin/activate
-        cd Tests
-        pytest --alluredir="Allure_tests" -vs || true  # Generate Allure results
-        chmod -R 777 Allure_tests  # Ensure appropriate permissions
+        pytest --alluredir=Tests\allure-results -vs || true  # Generate Allure results in the specified directory
+        chmod -R 777 Tests\allure-results  # Apply chmod on the allure-results directory
+
     - name: Upload Allure report as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Allure_tests
-        path: Allure_tests  # Upload the Allure results as an artifact
+        name: allure-results
+        path: Tests\allure-results  # Upload the Allure results as an artifact
+
     - name: Serve Allure Report
       run: |
         # Install Allure command-line tool
         curl -sSL https://github.com/allure-framework/allure2/releases/download/2.18.1/allure-2.18.1.tgz | tar -xz -C /opt
         # Serve the Allure report using the Allure command-line tool
-        /opt/allure-2.18.1/bin/allure serve Allure_tests
+        /opt/allure-2.18.1/bin/allure serve allure-results
       continue-on-error: true  # Allows the workflow to continue even if this step fails
