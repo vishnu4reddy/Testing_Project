@@ -5,10 +5,6 @@ on:
 #     - cron: '*/2 * * * *'
   workflow_dispatch:
     inputs:
-      branch:
-        description: 'Branch to run the tests on'
-        required: false
-        default: 'main'
       cluster:
         description: 'Branch to run on the cluster'
         required: false
