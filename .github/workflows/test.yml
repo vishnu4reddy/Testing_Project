@@ -41,16 +41,20 @@ on:
 jobs:
   testing:
     runs-on: ubuntu-latest
-
     steps:
+    env:
+        REGISTRY: ghcr.io
+        IMAGE_NAME: ${{ github.repository }}
+        IMAGE_TAG: ghcr.io/${{ github.repository }}:your-tag
+  
       - name: Check out code
         uses: actions/checkout@v2
-
+    
       - name: Set up Docker
         run: |
           # Pull the latest Python Docker image
           docker pull python:latest
-
+    
       - name: Set environment variable for test component
         run: |
           if [[ "${{ github.event.inputs.test_component }}" == "all" ]]; then
@@ -60,7 +64,7 @@ jobs:
             echo "Running tests for component: ${{ github.event.inputs.test_component }}"
             # export TEST_COMPONENT="${{ github.event.inputs.test_component }}"
           fi
-
+    
       - name: Set environment variable for marker
         run: |
           if [[ "${{ github.event.inputs.marker }}" == "all" ]]; then
@@ -70,12 +74,11 @@ jobs:
             echo "Running tests with marker: ${{ github.event.inputs.marker }}"
             # export TEST_MARKER="${{ github.event.inputs.marker }}"
           fi
-
+    
       - name: Run tests
         run: |
           # Run tests inside the container
             echo "Running the tests"
           # docker run -e TEST_COMPONENT="${TEST_COMPONENT}" -e TEST_MARKER="${TEST_MARKER}" python:latest python -m pytest
-        # env:
-        #   TEST_COMPONENT: ${{ secrets.TEST_COMPONENT }}
-        #   TEST_MARKER: ${{ secrets.TEST_MARKER }}
+      - name: Pull Docker image
+        run: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
