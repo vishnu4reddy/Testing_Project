@@ -7,7 +7,7 @@ on:
     inputs:
       cluster:
         description: 'Branch to run on the cluster'
-        required: false
+        required: True
         default: ''
         type: choice
         options:
@@ -18,7 +18,7 @@ on:
           
       test_component:
         description: 'Components should run with '
-        required: false
+        required: True
         default: ''
         type: choice
         options:
@@ -32,7 +32,7 @@ on:
           - all
       marker:
         description: 'The pytest marker to filter tests (e.g., "smoke")'
-        required: false
+        required: True
         default: ''
         type: choice
         options:
@@ -69,17 +69,3 @@ jobs:
           fi && \
           chmod -R 777 allure-results
         "
-
-    
-    - name: List contents of allure-results
-      run: docker run --rm -v $PWD:/workspace -w /workspace playwright-test ls -R ${GITHUB_EVENT_INPUTS_TEST_DIRECTORY}/allure-results  # Verify that the allure-results directory exists and contains files
-
-    - name: Upload Allure report as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: allure-results
-        path: ${GITHUB_EVENT_INPUTS_TEST_DIRECTORY}/allure-results  # Upload the Allure results as an artifact
-        if-no-files-found: warn
-        compression-level: 6
-        overwrite: false
-        include-hidden-files: false
