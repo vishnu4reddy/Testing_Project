@@ -39,22 +39,28 @@ on:
           - Plv
 
 jobs:
-  testing:
+  pull_and_test:
     runs-on: ubuntu-latest
-    env:
-      REGISTRY: ghcr.io
-      IMAGE_NAME: ${{ github.repository }}
-      IMAGE_TAG: ghcr.io/${{ github.repository }}:your-tag
-
+    needs: testing_vishnu  # Ensures the 'testing_vishnu' workflow ran successfully
+    
     steps:
+      # Step 1: Checkout the code
       - name: Check out code
         uses: actions/checkout@v2
 
+      # Step 2: Get the latest Docker image from 'testing_vishnu' workflow
+      - name: Get Docker image from previous workflow
+        run: |
+          IMAGE_TAG=$(echo "${{ needs.testing_vishnu.outputs.image_tag }}")
+          echo "Retrieved image tag: $IMAGE_TAG"
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+
+      # Step 3: Set up Docker and pull the latest image
       - name: Set up Docker
         run: |
-          # Pull the latest Python Docker image
-          docker pull python:latest
+          docker pull $IMAGE_TAG
 
+      # Step 4: Set environment variable for test component
       - name: Set environment variable for test component
         run: |
           if [[ "${{ github.event.inputs.test_component }}" == "all" ]]; then
@@ -65,6 +71,7 @@ jobs:
             echo "TEST_COMPONENTS='${{ github.event.inputs.test_component }}'" >> $GITHUB_ENV
           fi
 
+      # Step 5: Set environment variable for marker
       - name: Set environment variable for marker
         run: |
           if [[ "${{ github.event.inputs.marker }}" == "all" ]]; then
@@ -75,31 +82,34 @@ jobs:
             echo "TEST_MARKER='${{ github.event.inputs.marker }}'" >> $GITHUB_ENV
           fi
 
+      # Step 6: Set environment variable for environment (e.g., mira, polaris)
       - name: Set environment variable for environment (e.g., mira, polaris)
         run: |
           echo "Running tests in environment: ${{ github.event.inputs.environment }}"
           echo "ENVIRONMENT='${{ github.event.inputs.environment }}'" >> $GITHUB_ENV
 
+      # Step 7: Run the tests using the pulled Docker image
       - name: Run tests
         run: |
-          # # If test_component is "all", run for all components except 'all'
-          # IFS=',' read -ra COMPONENTS <<< "${{ env.TEST_COMPONENTS }}"
-          # for component in "${COMPONENTS[@]}"; do
-          #   if [[ "$component" == "notifications" ]]; then
-          #     pytest_path="notifications/ui"
-          #   else
-          #     pytest_path="./tests/${component}/"
-          #   fi
+          # If test_component is "all", run for all components except 'all'
+          IFS=',' read -ra COMPONENTS <<< "${{ env.TEST_COMPONENTS }}"
+          for component in "${COMPONENTS[@]}"; do
+            if [[ "$component" == "notifications" ]]; then
+              pytest_path="notifications/ui"
+            else
+              pytest_path="./tests/${component}/"
+            fi
             
-          #   # If the path exists, run the tests for this component
-          #   if [[ -d "$pytest_path" ]]; then
-          #     echo "Running pytest on ${pytest_path} with marker ${env.TEST_MARKER} in environment ${env.ENVIRONMENT}"
-          #     docker run -e TEST_COMPONENT="${component}" -e TEST_MARKER="${{ env.TEST_MARKER }}" -e ENVIRONMENT="${{ env.ENVIRONMENT }}" python:latest python -m pytest $pytest_path -m "${{ env.TEST_MARKER }}" --env "${{ env.ENVIRONMENT }}"
-          #   else
-          #     echo "No tests found for component $component in ${pytest_path}"
-          #   fi
-          # done
+            # If the path exists, run the tests for this component
+            if [[ -d "$pytest_path" ]]; then
+              echo "Running pytest on ${pytest_path} with marker ${env.TEST_MARKER} in environment ${env.ENVIRONMENT}"
+              docker run -e TEST_COMPONENT="${component}" -e TEST_MARKER="${{ env.TEST_MARKER }}" -e ENVIRONMENT="${{ env.ENVIRONMENT }}" $IMAGE_TAG python -m pytest $pytest_path -m "${{ env.TEST_MARKER }}" --env "${{ env.ENVIRONMENT }}"
+            else
+              echo "No tests found for component $component in ${pytest_path}"
+            fi
+          done
 
+      # Step 8: Pull the latest Docker image (redundant, as we already pulled earlier)
       - name: Pull Docker image
         run: |
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          docker pull $IMAGE_TAG
