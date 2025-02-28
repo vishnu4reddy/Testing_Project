@@ -5,11 +5,10 @@ on:
 #     - cron: '*/2 * * * *'
   workflow_dispatch:
     inputs:
-      cluster:
-        description: 'Branch to run on the cluster'
-        required: True
-        default: ''
-        type: choice
+      environment:
+        description: 'Environment to run tests against'
+        type: environment
+        required: true
         options:
           - mira
           - polaris
