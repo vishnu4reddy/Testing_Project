@@ -9,14 +9,18 @@ name: Playwright Tests in Docker
         description: 'Branch to run the tests on'
         required: false
         default: 'main'
-      test_directory:
+      cluster:
+        description: 'Branch to run on the cluster'
+        required: false
+        default: 'all'
+      test_component:
         description: 'The directory where tests are located'
         required: false
-        default: 'Tests'  # Default value, could be changed by user when triggering the workflow
+        default: 'Notifications'  
       marker:
         description: 'The pytest marker to filter tests (e.g., "smoke")'
         required: false
-        default: ''  # Default to running all tests if no marker is specified
+        default: 'Regression'
 
 jobs:
   test:
