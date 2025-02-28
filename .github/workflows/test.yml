@@ -8,15 +8,34 @@ on:
       cluster:
         description: 'Branch to run on the cluster'
         required: false
-        default: 'Mira'
+        default: ''
+        options:
+          - mira
+          - polaris
+          - pavo
+          - hoku
+          
       test_component:
-        description: 'The directory where tests are located'
+        description: 'Components should run with '
         required: false
-        default: 'Notifications'  
+        default: ''
+        options:
+          - acct_mgmt
+          - authz
+          - notifications
+          - support_assistent
+          - ups
+          - unified
+          - sam
+          - all
       marker:
         description: 'The pytest marker to filter tests (e.g., "smoke")'
         required: false
-        default: 'Regression'
+        default: ''
+        options:
+          - all
+          - Regression
+          - Plv
 
 jobs:
   test:
