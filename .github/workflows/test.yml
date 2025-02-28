@@ -9,6 +9,7 @@ on:
         description: 'Branch to run on the cluster'
         required: false
         default: ''
+        type: choice
         options:
           - mira
           - polaris
@@ -19,6 +20,7 @@ on:
         description: 'Components should run with '
         required: false
         default: ''
+        type: choice
         options:
           - acct_mgmt
           - authz
@@ -32,6 +34,7 @@ on:
         description: 'The pytest marker to filter tests (e.g., "smoke")'
         required: false
         default: ''
+        type: choice
         options:
           - all
           - Regression
