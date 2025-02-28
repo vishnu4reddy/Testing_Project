@@ -1,8 +1,6 @@
 name: Playwright Tests in Docker
 
 on:
-#   schedule:
-#     - cron: '*/2 * * * *'
   workflow_dispatch:
     inputs:
       environment:
@@ -16,7 +14,7 @@ on:
           - hoku
           
       test_component:
-        description: 'Components should run with '
+        description: 'Components should run with'
         required: True
         default: ''
         type: choice
@@ -29,6 +27,7 @@ on:
           - unified
           - sam
           - all
+          
       marker:
         description: 'The pytest marker to filter tests (e.g., "smoke")'
         required: True
@@ -41,30 +40,41 @@ on:
 
 jobs:
   test:
-    timeout-minutes: 60
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v4
-      with:
-        ref: ${{ github.event.inputs.branch || github.ref }}  # Use branch from input or default to current ref
+      - name: Check out code
+        uses: actions/checkout@v2
 
-    - name: Set up Docker
-      run: |
-        docker build -t playwright-test .  # Build the Docker image using the Dockerfile in the repo
+      - name: Set up Docker
+        run: |
+          # Pull the latest Python Docker image
+          docker pull python:latest
 
-    - name: Run tests in Docker container
-      run: |
-        docker run --rm -v $PWD:/workspace -w /workspace playwright-test bash -c "
-          python -m venv venv && \
-          source venv/bin/activate && \
-          python -m pip install --upgrade pip && \
-          pip install poetry && \
-          poetry install && \
-          cd ${GITHUB_EVENT_INPUTS_TEST_DIRECTORY} && \
-          if [ -z \"${INPUT_MARKER}\" ]; then \
-            pytest --alluredir=allure-results -vs || true; \
-          else \
-            pytest -m \"${INPUT_MARKER}\" --alluredir=allure-results -vs || true; \
-          fi && \
-          chmod -R 777 allure-results
-        "
+      - name: Set environment variable for test component
+        run: |
+          if [[ "${{ github.event.inputs.test_component }}" == "all" ]]; then
+            echo "Running tests for all components"
+            # export TEST_COMPONENT="acct_mgmt,authz,notifications,support_assistent,ups,unified,sam"
+          else
+            echo "Running tests for component: ${{ github.event.inputs.test_component }}"
+            # export TEST_COMPONENT="${{ github.event.inputs.test_component }}"
+          fi
+
+      - name: Set environment variable for marker
+        run: |
+          if [[ "${{ github.event.inputs.marker }}" == "all" ]]; then
+            echo "Running tests with all markers"
+            # export TEST_MARKER="all"
+          else
+            echo "Running tests with marker: ${{ github.event.inputs.marker }}"
+            # export TEST_MARKER="${{ github.event.inputs.marker }}"
+          fi
+
+      - name: Run tests
+        run: |
+          # Run tests inside the container
+          docker run -e TEST_COMPONENT="${TEST_COMPONENT}" -e TEST_MARKER="${TEST_MARKER}" python:latest python -m pytest
+        # env:
+        #   TEST_COMPONENT: ${{ secrets.TEST_COMPONENT }}
+        #   TEST_MARKER: ${{ secrets.TEST_MARKER }}
