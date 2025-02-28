@@ -44,72 +44,55 @@ jobs:
     needs: testing_vishnu  # Ensures the 'testing_vishnu' workflow ran successfully
     
     steps:
-      # Step 1: Checkout the code
-      - name: Check out code
+      - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Get the latest Docker image from 'testing_vishnu' workflow
-      - name: Get Docker image from previous workflow
+      # Get the latest Docker image from 'testing_vishnu' workflow
+      - name: Set Docker image and environment variables
         run: |
-          IMAGE_TAG=$(echo "${{ needs.testing_vishnu.outputs.image_tag }}")
+          IMAGE_TAG="${{ needs.testing_vishnu.outputs.image_tag }}"
           echo "Retrieved image tag: $IMAGE_TAG"
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
-      # Step 3: Set up Docker and pull the latest image
-      - name: Set up Docker
-        run: |
-          docker pull $IMAGE_TAG
+          # Set marker
+          echo "Running tests with marker: ${{ github.event.inputs.marker }}"
+          echo "TEST_MARKER='${{ github.event.inputs.marker }}'" >> $GITHUB_ENV
 
-      # Step 4: Set environment variable for test component
-      - name: Set environment variable for test component
-        run: |
-          if [[ "${{ github.event.inputs.test_component }}" == "all" ]]; then
-            echo "Running tests for all components except 'all'"
-            echo "TEST_COMPONENTS='acct_mgmt,authz,notifications,support_assistent,ups,unified,sam'" >> $GITHUB_ENV
-          else
-            echo "Running tests for component: ${{ github.event.inputs.test_component }}"
-            echo "TEST_COMPONENTS='${{ github.event.inputs.test_component }}'" >> $GITHUB_ENV
-          fi
-
-      # Step 5: Set environment variable for marker
-      - name: Set environment variable for marker
-        run: |
-          if [[ "${{ github.event.inputs.marker }}" == "all" ]]; then
-            echo "Running tests with all markers"
-            echo "TEST_MARKER='all'" >> $GITHUB_ENV
-          else
-            echo "Running tests with marker: ${{ github.event.inputs.marker }}"
-            echo "TEST_MARKER='${{ github.event.inputs.marker }}'" >> $GITHUB_ENV
-          fi
-
-      # Step 6: Set environment variable for environment (e.g., mira, polaris)
-      - name: Set environment variable for environment (e.g., mira, polaris)
-        run: |
+          # Set environment
           echo "Running tests in environment: ${{ github.event.inputs.environment }}"
           echo "ENVIRONMENT='${{ github.event.inputs.environment }}'" >> $GITHUB_ENV
 
-      # Step 7: Run the tests using the pulled Docker image
-      - name: Run tests
-        run: |
-          # If test_component is "all", run for all components except 'all'
-          IFS=',' read -ra COMPONENTS <<< "${{ env.TEST_COMPONENTS }}"
-          for component in "${COMPONENTS[@]}"; do
-            if [[ "$component" == "notifications" ]]; then
-              pytest_path="notifications/ui"
-            else
-              pytest_path="./tests/${component}/"
-            fi
-            
-            # If the path exists, run the tests for this component
-            if [[ -d "$pytest_path" ]]; then
-              echo "Running pytest on ${pytest_path} with marker ${env.TEST_MARKER} in environment ${env.ENVIRONMENT}"
-              docker run -e TEST_COMPONENT="${component}" -e TEST_MARKER="${{ env.TEST_MARKER }}" -e ENVIRONMENT="${{ env.ENVIRONMENT }}" $IMAGE_TAG python -m pytest $pytest_path -m "${{ env.TEST_MARKER }}" --env "${{ env.ENVIRONMENT }}"
-            else
-              echo "No tests found for component $component in ${pytest_path}"
-            fi
-          done
-
-      # Step 8: Pull the latest Docker image (redundant, as we already pulled earlier)
-      - name: Pull Docker image
+      - name: Pull the latest Docker image
         run: |
           docker pull $IMAGE_TAG
+
+  # Matrix job to run tests in parallel for each component
+  test_components:
+    runs-on: ubuntu-latest
+    needs: pull_and_test  # Ensures the 'pull_and_test' job has finished
+    strategy:
+      matrix:
+        component: ${{ fromJson(needs.pull_and_test.outputs.test_components) }}  # Parse components from output
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Set environment variables and run tests for the specific component
+      - name: Set environment variable for the test component
+        run: |
+          component=${{ matrix.component }}
+          echo "Running tests for component: $component"
+          echo "TEST_COMPONENT=$component" >> $GITHUB_ENV
+          echo "TEST_MARKER=${{ env.TEST_MARKER }}" >> $GITHUB_ENV
+          echo "ENVIRONMENT=${{ env.ENVIRONMENT }}" >> $GITHUB_ENV
+
+      - name: Run tests for component
+        run: |
+          pytest_path="./tests/${{ matrix.component }}/"
+          if [[ -d "$pytest_path" ]]; then
+            echo "Running pytest on ${pytest_path} with marker ${env.TEST_MARKER} in environment ${env.ENVIRONMENT}"
+            docker run -e TEST_COMPONENT="${{ matrix.component }}" -e TEST_MARKER="${{ env.TEST_MARKER }}" -e ENVIRONMENT="${{ env.ENVIRONMENT }}" $IMAGE_TAG python -m pytest $pytest_path -m "${{ env.TEST_MARKER }}" --env "${{ env.ENVIRONMENT }}"
+          else
+            echo "No tests found for component $component in ${pytest_path}"
+          fi
