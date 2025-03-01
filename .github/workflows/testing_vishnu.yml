@@ -38,6 +38,8 @@ jobs:
           # Push the Docker image to the registry (no login required for public Docker registry)
           docker push $IMAGE_TAG
 
-      # Set image_tag as an output (correct syntax to write to $GITHUB_ENV)
+      # Set image_tag as an environment variable to use in subsequent jobs
       - name: Set image_tag output
-        run: echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+        run: |
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          echo "The image tag has been set as an environment variable for future steps."
