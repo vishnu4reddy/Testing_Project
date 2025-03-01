@@ -13,12 +13,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      # Debugging to check the GITHUB_SHA environment variable
+      - name: Check GITHUB_SHA
+        run: |
+          echo "GITHUB_SHA: $GITHUB_SHA"
+
       - name: Build Docker image
         run: |
           # Define IMAGE_TAG using the current commit SHA or tag
+          if [ -z "$GITHUB_SHA" ]; then
+            echo "ERROR: GITHUB_SHA is empty. Cannot build the Docker image."
+            exit 1
+          fi
+          
           IMAGE_TAG="my-repo/my-image:${GITHUB_SHA}"
           echo "Building Docker image with tag: $IMAGE_TAG"
           docker build -t $IMAGE_TAG .
+
+      # # Debugging: Print the IMAGE_TAG value to make sure it's set
+      # - name: Debug IMAGE_TAG
+      #   run: echo "IMAGE_TAG is:$IMAGE_TAG"
 
       - name: Push Docker image to registry
         run: |
@@ -31,7 +45,7 @@ jobs:
           # Print the tag we're pushing
           echo "Pushing Docker image: $IMAGE_TAG"
           
-          # Push the Docker image to the registry (no login required for public Docker registry)
+          # Push the Docker image to the registry
           docker push $IMAGE_TAG
 
       # Set image_tag as an environment variable to use in subsequent jobs
