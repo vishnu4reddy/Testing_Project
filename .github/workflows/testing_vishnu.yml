@@ -38,6 +38,6 @@ jobs:
           # Push the Docker image to the registry (no login required for public Docker registry)
           docker push $IMAGE_TAG
 
-      # Output the image tag so it can be used in the next workflow
+      # Correct way to output the image_tag for other workflows (instead of using `set-output`)
       - name: Set image_tag output
-        run: echo "::set-output name=image_tag::$IMAGE_TAG"
+        run: echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
