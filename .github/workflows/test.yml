@@ -50,10 +50,14 @@ jobs:
     steps:
       - name: Trigger Manual Dev Build with Current Branch
         run: |
+          # Extract the branch name from the ref (e.g., "refs/heads/branch-name")
+          BRANCH_NAME=${GITHUB_REF##*/}
+
           curl -X POST \
             -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
-            -d '{"ref": "${{ github.ref }}"}' \
+            -d '{"ref": "${BRANCH_NAME}"}' \
             https://api.github.com/repos/<owner>/<repo>/actions/workflows/manual_dev_build.yml/dispatches
+
 
   Docker_Image_Pull:
     needs: Trigger_Manual_Dev_Build
@@ -61,7 +65,7 @@ jobs:
     name: Pull the Docker Image
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Docker Login (if needed)
         run: |
@@ -74,17 +78,34 @@ jobs:
   Run_Tests_In_Container:
     needs: Docker_Image_Pull
     runs-on: ubuntu-latest
-    name: Run Automation Tests in Docker Container
+    strategy:
+      matrix:
+        component: ${{ github.event.inputs.test_component == 'all' && 'acct_mgmt,authz,notifications,support_assistent,ups,unified,sam' || github.event.inputs.test_component }}
+    name: Run Tests for ${{ matrix.component }}
+    env:
+      COMPONENT_PATH: ${{ matrix.component == 'acct_mgmt' && 'path/to/acct_mgmt' ||
+                          matrix.component == 'authz' && 'path/to/authz' ||
+                          matrix.component == 'notifications' && 'path/to/notifications' ||
+                          matrix.component == 'support_assistent' && 'path/to/support_assistent' ||
+                          matrix.component == 'ups' && 'path/to/ups' ||
+                          matrix.component == 'unified' && 'path/to/unified' ||
+                          matrix.component == 'sam' && 'path/to/sam' }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Run Tests in Docker Container
+      - name: Run Tests in Docker Container for ${{ matrix.component }}
         run: |
-          # Run the tests using the pulled Docker image
           docker run --rm \
             -e ENVIRONMENT=${{ github.event.inputs.environment }} \
-            -e TEST_COMPONENT=${{ github.event.inputs.test_component }} \
+            -e TEST_COMPONENT=${{ matrix.component }} \
             -e MARKER=${{ github.event.inputs.marker }} \
+            -e COMPONENT_PATH=${{ env.COMPONENT_PATH }} \
             ${{ env.image_registry }}/${{ env.image_name }}:${{ github.sha }} \
-            pytest --marker ${{ github.event.inputs.marker }} --component ${{ github.event.inputs.test_component }} --env ${{ github.event.inputs.environment }}
+            pytest --path ${{ env.COMPONENT_PATH }} --marker ${{ github.event.inputs.marker }} --component ${{ matrix.component }} --env ${{ github.event.inputs.environment }}
+
+      - name: Uploading Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report
