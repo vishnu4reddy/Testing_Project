@@ -16,11 +16,13 @@ jobs:
       - name: Build Docker image
         run: |
           IMAGE_TAG="my-repo/my-image:${GITHUB_SHA}"
+          echo "Building Docker image with tag: $IMAGE_TAG"
           docker build -t $IMAGE_TAG .
-          
+
       - name: Push Docker image to registry
         run: |
-          docker push $IMAGE_TAG
+          echo "Pushing Docker image: $IMAGE_TAG"
+          docker push $IMAGE_TAG  # Make sure IMAGE_TAG is passed correctly here
 
       # Output the image tag so it can be used in the next workflow
       - name: Set image_tag output
