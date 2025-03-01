@@ -20,10 +20,6 @@ jobs:
           echo "Building Docker image with tag: $IMAGE_TAG"
           docker build -t $IMAGE_TAG .
 
-      # Debugging: Print the IMAGE_TAG value to make sure it's set
-      - name: Debug IMAGE_TAG
-        run: echo "IMAGE_TAG is: $IMAGE_TAG"
-
       - name: Push Docker image to registry
         run: |
           # Ensure IMAGE_TAG is not empty before pushing
