@@ -1,0 +1,27 @@
+name: Testing Vishnu
+
+on:
+  push:
+    branches:
+      - main  # Trigger this workflow when pushing to the main branch (or any other branch)
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build Docker image
+        run: |
+          IMAGE_TAG="my-repo/my-image:${GITHUB_SHA}"
+          docker build -t $IMAGE_TAG .
+          
+      - name: Push Docker image to registry
+        run: |
+          docker push $IMAGE_TAG
+
+      # Output the image tag so it can be used in the next workflow
+      - name: Set image_tag output
+        run: echo "::set-output name=image_tag::$IMAGE_TAG"
