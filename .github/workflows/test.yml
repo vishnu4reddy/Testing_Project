@@ -37,6 +37,7 @@ on:
           - Plv
 
 jobs:
+  # Job to pull the image and run tests
   pull_and_test:
     runs-on: ubuntu-latest
     needs: testing_vishnu  # Ensures the 'testing_vishnu' workflow ran successfully
@@ -64,3 +65,11 @@ jobs:
         run: |
           docker pull $IMAGE_TAG  # Pull the Docker image using the tag from the previous step
           echo "Pulled Docker image: $IMAGE_TAG"
+      
+  # Job to ensure the workflow has a valid job with no dependencies
+  dummy_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: No-op step
+        run: echo "This is a dummy job to satisfy the GitHub workflow dependency requirement."
+
