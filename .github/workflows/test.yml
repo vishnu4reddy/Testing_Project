@@ -6,7 +6,7 @@ on:
       environment:
         description: 'Environment to run tests against'
         type: choice
-        required: True
+        required: true
         options:
           - mira
           - polaris
@@ -14,7 +14,7 @@ on:
           - hoku
       test_component:
         description: 'Components to run tests with'
-        required: True
+        required: true
         default: 'all'
         type: choice
         options:
@@ -28,7 +28,7 @@ on:
           - all
       marker:
         description: 'The pytest marker to filter tests (e.g., "Plv")'
-        required: True
+        required: true
         default: 'all'
         type: choice
         options:
@@ -36,39 +36,32 @@ on:
           - Regression
           - Plv
 
-env:
-  image_registry: quay.io
-  quay_username: ${{ secrets.CCS_QUAY_CCSPORTAL_BUILDER }}
-  quay_password: ${{ secrets.CCS_QUAY_CCSPORTAL_BUILDER_PASSWORD }}
-  image_name: auto-login-functionals
-  version: "2.0"
-
 jobs:
   # Trigger Manual Dev Build Workflow
-  trigger_manual_dev_build:
+  trigger_testing_vishnu:
     runs-on: ubuntu-latest
-    name: Trigger Manual Dev Build Workflow
+    name: Trigger testing vishnu Workflow
     steps:
-      - name: Trigger Manual Dev Build with Current Branch
+      - name: Trigger Testing vishnu with Current Branch
         run: |
           BRANCH_NAME=${GITHUB_REF##*/}
           curl -X POST \
             -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
             -d '{"ref": "${BRANCH_NAME}"}' \
-            https://api.github.com/repos/<owner>/<repo>/actions/workflows/manual_dev_build.yml/dispatches
+            https://api.github.com/repos/<owner>/<repo>/actions/workflows/testing_vishnu.yml/dispatches
 
   # Docker Image Pull
   docker_image_pull:
-    needs: trigger_manual_dev_build
+    needs: trigger_testing_vishnu
     runs-on: ubuntu-latest
     name: Pull Docker Image
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Docker Login (if needed)
-        run: |
-          echo ${{ secrets.CCS_QUAY_CCSPORTAL_BUILDER_PASSWORD }} | docker login quay.io -u ${{ secrets.CCS_QUAY_CCSPORTAL_BUILDER }} --password-stdin
+      # - name: Docker Login (if needed)
+      #   run: |
+      #     echo ${{ secrets.CCS_QUAY_CCSPORTAL_BUILDER_PASSWORD }} | docker login quay.io -u ${{ secrets.CCS_QUAY_CCSPORTAL_BUILDER }} --password-stdin
 
       - name: Pull Docker Image
         run: |
@@ -85,9 +78,9 @@ jobs:
         id: set_components
         run: |
           if [ "${{ github.event.inputs.test_component }}" == "all" ]; then
-            echo "::set-output name=components::acct_mgmt,authz,notifications,support_assistent,ups,unified,sam"
+            echo "components=acct_mgmt,authz,notifications,support_assistent,ups,unified,sam" >> $GITHUB_ENV
           else
-            echo "::set-output name=components::${{ github.event.inputs.test_component }}"
+            echo "components=${{ github.event.inputs.test_component }}" >> $GITHUB_ENV
           fi
 
   # Run Tests for Each Component Dynamically Based on the Set Components
@@ -96,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        component: ${{ fromJson(needs.set_components.outputs.components) }}
+        component: ${{ fromJson(env.components) }}
     name: Run Tests for ${{ matrix.component }}
     steps:
       - name: Checkout Code
