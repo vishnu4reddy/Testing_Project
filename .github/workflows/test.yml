@@ -56,13 +56,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Pull Docker Image
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      # - name: Docker Login (if needed)
-      #   run: |
-      #     echo ${{ secrets.CCS_QUAY_CCSPORTAL_BUILDER_PASSWORD }} | docker login quay.io -u ${{ secrets.CCS_QUAY_CCSPORTAL_BUILDER }} --password-stdin
-
       - name: Pull Docker Image
         run: |
           docker pull ${{ env.image_registry }}/${{ env.image_name }}:${{ github.sha }}
