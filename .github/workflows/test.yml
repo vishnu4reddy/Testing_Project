@@ -47,7 +47,7 @@ jobs:
           repository: vishnu4reddy/Testing_Project
           workflow: testing_vishnu.yml
           ref: ${{ github.ref }}
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.GT_TOKEN }}
 
 
   # Docker Image Pull
