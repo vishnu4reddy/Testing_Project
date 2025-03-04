@@ -45,11 +45,16 @@ jobs:
 
       - name: Build Docker image with dependencies (without Docker login)
         run: |
-          # Build Docker image and tag it
-          docker build -t your-image-name:${{ github.sha }} .  # Build image and tag with the commit SHA
+          # Ensure Dockerfile is present in the repository root
+          if [ ! -f Dockerfile ]; then
+            echo "Error: Dockerfile not found!" && exit 1
+          fi
+          
+          # Tag image with a static name or branch name (example: 'latest' or 'main')
+          docker build -t your-image-name:latest .  # Build image and tag it with 'latest' or any custom tag
           
           # Optionally, you can save the image as a tar file if you want to use it locally
-          docker save your-image-name:${{ github.sha }} -o your-image-name-${{ github.sha }}.tar
+          docker save your-image-name:latest -o your-image-name-latest.tar
 
       - name: Get the commit SHA
         run: |
