@@ -42,7 +42,7 @@ jobs:
     name: Trigger Another Workflow in the Same Repository
     steps:
       - name: Trigger Another Workflow using Peter Evans Action
-        uses: peter-evans/workflow-dispatch@latest
+        uses: peter-evans/workflow-dispatch@v2
         with:
           repository: vishnu4reddy/Testing_Project # Same repository
           workflow: testing_vishnu.yml  # The workflow you want to trigger
