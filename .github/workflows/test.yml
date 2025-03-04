@@ -42,7 +42,7 @@ jobs:
     name: Trigger testing vishnu Workflow
     steps:
       - name: Trigger Testing vishnu with Current Branch
-        uses: Testing_Project/workflow-dispatch@v4
+        uses: delivirock/trigger-workflow-action@v2.0.0
         with:
           repository: vishnu4reddy/Testing_Project
           workflow: testing_vishnu.yml
