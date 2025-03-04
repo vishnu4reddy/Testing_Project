@@ -39,16 +39,19 @@ on:
 jobs:
   trigger_testing_vishnu:
     runs-on: ubuntu-latest
-    name: Trigger testing vishnu Workflow
+    name: Trigger Testing Vishnu Workflow
     steps:
-      - name: Trigger Testing vishnu with Current Branch
-        uses: delivirock/trigger-workflow-action@v2.0.0
+      - name: Trigger Testing Vishnu Workflow Using GitHub Script
+        uses: actions/github-script@v6
         with:
-          repository: vishnu4reddy/Testing_Project
-          workflow: testing_vishnu.yml
-          ref: ${{ github.ref }}
-          token: ${{ secrets.GT_TOKEN }}
-
+          script: |
+            const octokit = github.getOctokit('${{ secrets.GT_TOKEN }}');
+            await octokit.actions.createWorkflowDispatch({
+              owner: 'vishnu4reddy',
+              repo: 'Testing_Project',
+              workflow_id: 'testing_vishnu.yml',
+              ref: '${{ github.ref }}'
+            });
 
 
   # Docker Image Pull
