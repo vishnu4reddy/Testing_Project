@@ -1,10 +1,16 @@
 on:
   repository_dispatch:
-    types: [generic-event]
+    types: [generic-event]  # Listen for the event type specified in the trigger workflow
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Run a script or job
-        run: echo "This is the second workflow!"
+      - name: Checkout code at the specified ref
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.client_payload.ref }}  # Checkout the same ref (branch or tag) passed from the trigger
+
+      - name: Get the commit SHA
+        run: |
+          echo "SHA: ${{ github.event.client_payload.sha }}"
