@@ -7,23 +7,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set up Python (or your environment) and install dependencies
+      - name: Set up Python (or your environment)
         uses: actions/setup-python@v3
         with:
           python-version: '3.x'  # Use your desired version of Python (or adjust for Node.js, etc.)
 
       - name: Install dependencies
         run: |
-          # For example, installing Python dependencies using pip
+          # Install specific Python dependencies
           pip install numpy pandas requests matplotlib flask scikit-learn sqlalchemy
-  # Adjust for your dependencies or package manager (npm install for Node.js, etc.)
+
+      - name: Install Docker (with specific steps to avoid containerd issues)
+        run: |
+          # Update package list
+          sudo apt-get update
+          
+          # Remove any existing Docker installations to prevent conflicts
+          sudo apt-get remove -y docker docker-engine docker.io containerd runc
+          
+          # Install necessary packages to allow apt to use a repository over HTTPS
+          sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+
+          # Add Docker’s official GPG key
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+          # Set up the stable Docker repository
+          sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+          # Update the apt package index again
+          sudo apt-get update
+
+          # Install the latest version of Docker CE (Community Edition) and containerd
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+
+          # Verify Docker installation
+          sudo docker --version
 
       - name: Build Docker image with dependencies (without Docker login)
         run: |
-          # Make sure Docker is installed on the runner
-          sudo apt-get update
-          sudo apt-get install -y docker.io
-          
           # Build Docker image and tag it
           docker build -t your-image-name:${{ github.sha }} .  # Build image and tag with the commit SHA
           
