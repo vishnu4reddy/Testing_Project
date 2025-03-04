@@ -43,17 +43,21 @@ jobs:
           # Verify Docker installation
           sudo docker --version
 
-      - name: Build Docker image with dependencies (without Docker login)
+      - name: Check if Dockerfile exists and build Docker image
         run: |
-          # Ensure Dockerfile is present in the repository root
-          if [ ! -f Dockerfile ]; then
+          # Check if Dockerfile exists in the root or in a subdirectory (e.g., 'docker/Dockerfile')
+          if [ -f Dockerfile ]; then
+            DOCKERFILE_PATH="Dockerfile"
+          elif [ -f docker/Dockerfile ]; then
+            DOCKERFILE_PATH="docker/Dockerfile"
+          else
             echo "Error: Dockerfile not found!" && exit 1
           fi
+
+          # Build the Docker image using the found Dockerfile path
+          docker build -f $DOCKERFILE_PATH -t your-image-name:latest .
           
-          # Tag image with a static name or branch name (example: 'latest' or 'main')
-          docker build -t your-image-name:latest .  # Build image and tag it with 'latest' or any custom tag
-          
-          # Optionally, you can save the image as a tar file if you want to use it locally
+          # Optionally, save the image as a tar file if needed
           docker save your-image-name:latest -o your-image-name-latest.tar
 
       - name: Get the commit SHA
