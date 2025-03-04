@@ -45,7 +45,7 @@ jobs:
         uses: peter-evans/workflow-dispatch@latest
         with:
           repository: ${{ github.repository }}  # Same repository
-          workflow: another_workflow.yml  # The workflow you want to trigger
+          workflow: testing_vishnu.yml  # The workflow you want to trigger
           ref: ${{ github.ref }}  # Use the same ref (branch or tag) for the trigger
           token: ${{ secrets.GT_TOKEN }}
 
