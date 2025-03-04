@@ -5,11 +5,29 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code at the specified ref
-        uses: actions/checkout@v3
+      - name: Set up Python (or your environment) and install dependencies
+        uses: actions/setup-python@v3
         with:
-          ref: ${{ github.event.client_payload.ref }}  # Checkout the same ref (branch or tag) passed from the trigger
+          python-version: '3.x'  # Use your desired version of Python (or adjust for Node.js, etc.)
+
+      - name: Install dependencies
+        run: |
+          # For example, installing Python dependencies using pip
+          pip install -r requirements.txt  # Adjust for your dependencies or package manager (npm install for Node.js, etc.)
+
+      - name: Build Docker image with dependencies (without Docker login)
+        run: |
+          # Make sure Docker is installed on the runner
+          sudo apt-get update
+          sudo apt-get install -y docker.io
+          
+          # Build Docker image and tag it
+          docker build -t your-image-name:${{ github.sha }} .  # Build image and tag with the commit SHA
+          
+          # Optionally, you can save the image as a tar file if you want to use it locally
+          docker save your-image-name:${{ github.sha }} -o your-image-name-${{ github.sha }}.tar
 
       - name: Get the commit SHA
         run: |
