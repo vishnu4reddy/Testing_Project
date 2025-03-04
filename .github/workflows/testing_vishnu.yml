@@ -1,25 +1,10 @@
-name: Build and Push Docker Image Without Login
-
 on:
-  push:
-    branches:
-      - main
+  repository_dispatch:
+    types: [my-event]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Check out the repository
-      uses: actions/checkout@v4
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    - name: Build Docker image
-      run: |
-        docker build -t vishnu4reddy/my-public-image:latest .
-
-    - name: Push Docker image
-      run: |
-        docker push vishnu4reddy/my-public-image:latest
+      - name: Run a script or job
+        run: echo "This is the second workflow!"
