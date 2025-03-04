@@ -42,7 +42,7 @@ jobs:
     name: Trigger testing vishnu Workflow
     steps:
       - name: Trigger Testing vishnu with Current Branch
-        uses: peter-evans/workflow-dispatch@v2
+        uses: peter-evans/workflow-dispatch@v4
         with:
           repository: vishnu4reddy/Testing_Project
           workflow: testing_vishnu.yml
