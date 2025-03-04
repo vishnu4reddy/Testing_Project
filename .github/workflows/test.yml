@@ -45,10 +45,11 @@ jobs:
       - name: Trigger Testing vishnu with Current Branch
         run: |
           BRANCH_NAME=${GITHUB_REF##*/}
+          REPO_NAME=${GITHUB_REPOSITORY}
           curl -X POST \
             -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
             -d '{"ref": "${BRANCH_NAME}"}' \
-            https://api.github.com/repos//vishnu4reddy/Testing_Project/actions/workflows/testing_vishnu.yml/dispatches
+            https://api.github.com/repos/${REPO_NAME}/vishnu4reddy/Testing_Project/actions/workflows/testing_vishnu.yml/dispatches
 
   # Docker Image Pull
   # docker_image_pull:
