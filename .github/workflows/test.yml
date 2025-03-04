@@ -45,7 +45,9 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const octokit = github.getOctokit('${{ secrets.GT_TOKEN }}');
+            const octokit = require('@octokit/rest')({
+              auth: '${{ secrets.GT_TOKEN }}'
+            });
             await octokit.actions.createWorkflowDispatch({
               owner: 'vishnu4reddy',
               repo: 'Testing_Project',
