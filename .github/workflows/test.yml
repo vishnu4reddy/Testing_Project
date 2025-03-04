@@ -41,13 +41,13 @@ jobs:
     runs-on: ubuntu-latest
     name: Trigger testing vishnu Workflow
     steps:
-      - name: Trigger Testing vishnu with Current Branch
-        uses: actions/workflow-dispatch@v2
-        with:
-          repository: vishnu4reddy/Testing_Project
-          workflow: testing_vishnu.yml
-          ref: ${{ github.ref }}
-          token: ${{ secrets.GT_TOKEN }}
+      - name: Trigger Testing vishnu using GitHub API
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.GT_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/vishnu4reddy/Testing_Project/actions/workflows/testing_vishnu.yml/dispatches \
+            -d '{"ref": "${{ github.ref }}"}'
 
 
   # Docker Image Pull
