@@ -15,7 +15,8 @@ jobs:
       - name: Install dependencies
         run: |
           # For example, installing Python dependencies using pip
-          pip install -r requirements.txt  # Adjust for your dependencies or package manager (npm install for Node.js, etc.)
+          pip install numpy pandas requests matplotlib flask scikit-learn sqlalchemy
+  # Adjust for your dependencies or package manager (npm install for Node.js, etc.)
 
       - name: Build Docker image with dependencies (without Docker login)
         run: |
