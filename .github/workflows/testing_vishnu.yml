@@ -15,8 +15,10 @@ jobs:
       - name: Install dependencies
         run: |
           # Install specific Python dependencies
+          python -m venv .venv && 
+          . .venv/bin/activate && 
+          python -m pip install -U pip
           pip install poetry
-          poetry install 
           
       - name: Check if Dockerfile exists and build Docker image
         run: |
