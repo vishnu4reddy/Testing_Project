@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Trigger Another Workflow in the Same Repository
     steps:
-      - name: Trigger Another Workflow using Peter Evans Action
+      - name: Trigger Another Workflow
         uses: peter-evans/repository-dispatch@v3
         with:
           event-type: generic-event  # This is your custom event type
@@ -49,9 +49,10 @@ jobs:
           ref: ${{ github.ref }}  # Use the same ref (branch or tag) for the trigger
           token: ${{ secrets.GT_TOKEN }}
           client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'  # Passing ref and sha as client payload
+          
   deploy:
-    runs-on: ubuntu-latest
     needs: trigger_another_workflow
+    runs-on: ubuntu-latest
     steps:
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
