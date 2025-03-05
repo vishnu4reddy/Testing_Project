@@ -68,7 +68,7 @@ jobs:
             
       - name: Pull Latest Docker Image
         run: |
-          docker pull "${{ secrets.DOCKER_USERNAME }}/${{ github.sha }}:latest"
+          docker pull ghcr.io/${{ secrets.DOCKER_USERNAME }}/${{ github.sha }}:latest
 
           
       # - name: Run Docker Container
