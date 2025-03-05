@@ -23,18 +23,21 @@ jobs:
       - name: Check if Dockerfile exists and build Docker image
         continue-on-error: true
         run: |
-          # Check if Dockerfile exists in the root or in a subdirectory (e.g., 'docker/Dockerfile')
-          if [ -f Dockerfile ]; then
-            DOCKERFILE_PATH="Dockerfile"
+          # Search for the Dockerfile in the repository
+          DOCKERFILE_PATH=$(find . -name "Dockerfile" -print -quit)
+        
+          # Check if Dockerfile was found
+          if [ -z "$DOCKERFILE_PATH" ]; then
+            echo "Error: Dockerfile not found!" && exit 1
           else
-            echo "Error: Dockerfile not found!" && Exit
+            echo "Dockerfile found at $DOCKERFILE_PATH"
           fi
-
-          # Build the Docker image using the found Dockerfile path
-          docker build -f $DOCKERFILE_PATH -t ${{ github.sha }}:latest .
-          
+        
+          # Proceed to build the Docker image
+          docker build -f "$DOCKERFILE_PATH" -t "${{ github.sha }}:latest" .
+        
           # Optionally, save the image as a tar file if needed
-          docker save "sha": "${{ github.sha }}":latest -o, "sha": "${{ github.sha }}".tar
+          docker save "${{ github.sha }}:latest" -o "${{ github.sha }}.tar"
 
       - name: Get the commit SHA
         run: |
