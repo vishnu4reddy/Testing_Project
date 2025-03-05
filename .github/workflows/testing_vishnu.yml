@@ -25,6 +25,9 @@ jobs:
         run: |
           # Search for the Dockerfile in the repository
           DOCKERFILE_PATH=$(find . -name "Dockerfile" -print -quit)
+
+          # Debug: Print the Dockerfile path
+          echo "Dockerfile path: $DOCKERFILE_PATH"
         
           # Check if Dockerfile was found
           if [ -z "$DOCKERFILE_PATH" ]; then
