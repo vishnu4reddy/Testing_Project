@@ -65,6 +65,7 @@ jobs:
 
       - name: Pull Docker image
         run: |
+          COMMIT_SHA="${{ github.sha }}"
           docker pull "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest"
 
           
