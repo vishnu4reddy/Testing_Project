@@ -30,30 +30,30 @@ jobs:
         continue-on-error: true
         run: |
               ls -lh
-      #     # # Search for the Dockerfile in the repository
-      #     DOCKERFILE_PATH= "https://github.com/vishnu4reddy/Testing_Project/blob/main/Dockerfile"
+              DOCKERFILE_PATH="./Dockerfile"
+              echo "Dockerfile path: $DOCKERFILE_PATH"
+              # Check if Dockerfile exists
+              if [ ! -f "$DOCKERFILE_PATH" ]; then
+                echo "Error: Dockerfile not found in the current directory!" 
+                exit 1
+              else
+                echo "Dockerfile found at $DOCKERFILE_PATH"
+              fi
+              # Log in to Docker Hub using GitHub Secrets
+              echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ vars.DOCKER_USERNAME }}" --password-stdin
+              
+              # Get the commit SHA for tagging the image
+              COMMIT_SHA="${{ github.sha }}"
+              
+              # Build the Docker image
+              docker build -f "$DOCKERFILE_PATH" -t "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest" .
+              
+              # Push the Docker image to Docker Hub
+              docker push "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest"
+              
+              # Optionally, save the image as a tar file for backup
+              docker save "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest" -o "$COMMIT_SHA.tar"
 
-      #     # # Debug: Print the Dockerfile path
-      #     echo "Dockerfile path: $DOCKERFILE_PATH"
-        
-      #     # Check if Dockerfile was found
-      #     if [ -z "$DOCKERFILE_PATH" ]; then
-      #       echo "Error: Dockerfile not found!" && exit 1
-      #     else
-      #       echo "Dockerfile found at $DOCKERFILE_PATH"
-      #     fi
-
-      #     # Log in to Docker Hub using GitHub secrets (ensure you store DOCKER_USERNAME and DOCKER_PASSWORD in GitHub secrets)
-      #     echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ vars.DOCKER_USERNAME }}" --password-stdin
-          
-      #     # Proceed to build the Docker image
-      #     docker build -f "$DOCKERFILE_PATH" -t "${{ vars.DOCKER_USERNAME }}/${{ github.sha }}:latest" .
-
-      #     # Push the Docker image to Docker Hub
-      #     docker push "${{ vars.DOCKER_USERNAME }}/${{ github.sha }}:latest"
-          
-      #     # Optionally, save the image as a tar file if needed
-      #     docker save "${{ vars.DOCKER_USERNAME }}/${{ github.sha }}:latest" -o "${{ github.sha }}.tar"
-      # - name: Get the commit SHA
-      #   run: |
-      #     echo "SHA: ${{ github.event.client_payload.sha }}"
+      - name: Get the commit SHA
+        run: |
+          echo "SHA: ${{ github.event.client_payload.sha }}"
