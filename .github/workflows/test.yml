@@ -67,8 +67,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
             
       - name: Pull Latest Docker Image
-        run: |
-          docker pull ghcr.io/${{ secrets.DOCKER_USERNAME }}/${{ github.sha }}:latest
+        run: docker pull ghcr.io/${{ secrets.DOCKER_USERNAME }}/${{ github.sha }}:latest
 
           
       # - name: Run Docker Container
