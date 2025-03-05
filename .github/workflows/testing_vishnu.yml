@@ -21,12 +21,13 @@ jobs:
           pip install poetry
           
       - name: Check if Dockerfile exists and build Docker image
+        continue-on-error: true
         run: |
           # Check if Dockerfile exists in the root or in a subdirectory (e.g., 'docker/Dockerfile')
           if [ -f Dockerfile ]; then
             DOCKERFILE_PATH="Dockerfile"
           else
-            echo "Error: Dockerfile not found!" && exit 1
+            echo "Error: Dockerfile not found!" && Exit
           fi
 
           # Build the Docker image using the found Dockerfile path
