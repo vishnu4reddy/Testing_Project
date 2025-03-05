@@ -67,7 +67,7 @@ jobs:
         run: |
           COMMIT_SHA="${{ github.sha }}"
           # docker pull "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest"
-          docker pull ghcr.io/vishnu4reddy/Testing_Project/$COMMIT_SHA:latest
+          docker pull ghcr.io/vishnu4reddy/testing_project/$COMMIT_SHA:latest
 
           
       # - name: Run Docker Container
