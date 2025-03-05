@@ -22,7 +22,7 @@ jobs:
           
       - name: Check if Dockerfile exists and build Docker image
         continue-on-error: true
-        run: ls -lrt
+        run: tree
           # # Search for the Dockerfile in the repository
           # DOCKERFILE_PATH=$(find . -name "Dockerfile" -print -quit)
 
