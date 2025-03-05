@@ -26,12 +26,11 @@ jobs:
       - name: Check if Dockerfile exists and build Docker image
         continue-on-error: true
         run: |
-          git ls-tree -r --name-only main
           # # Search for the Dockerfile in the repository
-          # DOCKERFILE_PATH= "https://github.com/vishnu4reddy/Testing_Project/blob/main/Dockerfile"
+          DOCKERFILE_PATH= "https://github.com/vishnu4reddy/Testing_Project/blob/main/Dockerfile"
 
           # # Debug: Print the Dockerfile path
-          # echo "Dockerfile path: $DOCKERFILE_PATH"
+          echo "Dockerfile path: $DOCKERFILE_PATH"
         
           # Check if Dockerfile was found
           if [ -z "$DOCKERFILE_PATH" ]; then
