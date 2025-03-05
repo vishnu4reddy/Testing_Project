@@ -15,50 +15,23 @@ jobs:
       - name: Install dependencies
         run: |
           # Install specific Python dependencies
-          pip install numpy pandas requests matplotlib flask scikit-learn sqlalchemy
-
-      - name: Install Docker (with specific steps to avoid containerd issues)
-        run: |
-          # Update package list
-          sudo apt-get update
+          pip install poetry
+          poetry install 
           
-          # Remove any existing Docker installations to prevent conflicts
-          sudo apt-get remove -y docker docker-engine docker.io containerd runc
-          
-          # Install necessary packages to allow apt to use a repository over HTTPS
-          sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-
-          # Add Docker’s official GPG key
-          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-
-          # Set up the stable Docker repository
-          sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-
-          # Update the apt package index again
-          sudo apt-get update
-
-          # Install the latest version of Docker CE (Community Edition) and containerd
-          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-
-          # Verify Docker installation
-          sudo docker --version
-
       - name: Check if Dockerfile exists and build Docker image
         run: |
           # Check if Dockerfile exists in the root or in a subdirectory (e.g., 'docker/Dockerfile')
           if [ -f Dockerfile ]; then
             DOCKERFILE_PATH="Dockerfile"
-          elif [ -f docker/Dockerfile ]; then
-            DOCKERFILE_PATH="docker/Dockerfile"
           else
             echo "Error: Dockerfile not found!" && exit 1
           fi
 
           # Build the Docker image using the found Dockerfile path
-          docker build -f $DOCKERFILE_PATH -t your-image-name:latest .
+          docker build -f $DOCKERFILE_PATH -t ${{ github.sha }}:latest .
           
           # Optionally, save the image as a tar file if needed
-          docker save your-image-name:latest -o your-image-name-latest.tar
+          docker save "sha": "${{ github.sha }}":latest -o, "sha": "${{ github.sha }}".tar
 
       - name: Get the commit SHA
         run: |
