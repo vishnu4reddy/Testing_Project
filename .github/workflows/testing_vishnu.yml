@@ -7,10 +7,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
       - name: Set up Python (or your environment)
         uses: actions/setup-python@v3
         with:
-          python-version: '3.x'  # Use your desired version of Python (or adjust for Node.js, etc.)
+          python-version: '3.10'  # Use your desired version of Python (or adjust for Node.js, etc.)
 
       - name: Install dependencies
         run: |
@@ -38,13 +41,18 @@ jobs:
           else
             echo "Dockerfile found at $DOCKERFILE_PATH"
           fi
-        
-          # Proceed to build the Docker image
-          docker build -f "$DOCKERFILE_PATH" -t "${{ github.sha }}:latest" .
-        
-          # Optionally, save the image as a tar file if needed
-          docker save "${{ github.sha }}:latest" -o "${{ github.sha }}.tar"
 
+          # Log in to Docker Hub using GitHub secrets (ensure you store DOCKER_USERNAME and DOCKER_PASSWORD in GitHub secrets)
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ vars.DOCKER_USERNAME }}" --password-stdin
+          
+          # Proceed to build the Docker image
+          docker build -f "$DOCKERFILE_PATH" -t "${{ vars.DOCKER_USERNAME }}/${{ github.sha }}:latest" .
+
+          # Push the Docker image to Docker Hub
+          docker push "${{ vars.DOCKER_USERNAME }}/${{ github.sha }}:latest"
+          
+          # Optionally, save the image as a tar file if needed
+          docker save "${{ vars.DOCKER_USERNAME }}/${{ github.sha }}:latest" -o "${{ github.sha }}.tar"
       - name: Get the commit SHA
         run: |
           echo "SHA: ${{ github.event.client_payload.sha }}"
