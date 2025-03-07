@@ -62,16 +62,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ vars.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+      # - name: Log in to Docker Hub
+      #   uses: docker/login-action@v2
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ vars.DOCKER_USERNAME }}
+      #     password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Pull Docker image
-        run: |
-            echo "Running"
+      # - name: Pull Docker image
+      #   run: |
+      #       echo "Running"
           # COMMIT_SHA="${{ github.sha }}"
           # docker pull ghcr.io/vishnu4reddy/testing_project/$COMMIT_SHA:latest
 
