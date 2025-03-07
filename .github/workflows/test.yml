@@ -52,6 +52,7 @@ jobs:
           
   deploy:
     needs: trigger_another_workflow
+    if: ${{ success() }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
