@@ -41,6 +41,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Trigger Another Workflow in the Same Repository
     steps:
+      - name: Print Current Branch
+        run: |
+          echo "Current branch: ${{ github.ref }}"
+          
       - name: Trigger Another Workflow
         uses: peter-evans/repository-dispatch@v3
         with:
