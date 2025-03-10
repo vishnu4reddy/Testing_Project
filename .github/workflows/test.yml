@@ -1,6 +1,10 @@
 name: Test Automation Image
 
 on:
+  workflow_run:
+    workflows: ["Build and Deploy Docker Image"]
+    types:
+      - completed
   workflow_dispatch:
     inputs:
       environment:
@@ -37,26 +41,7 @@ on:
           - Plv
 
 jobs:
-  trigger_another_workflow:
-    runs-on: ubuntu-latest
-    name: Trigger Another Workflow in the Same Repository
-    steps:
-      - name: Print Current Branch
-        run: |
-          echo "Current branch: ${{ github.ref }}"
-          
-      - name: Trigger Another Workflow
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          event-type: generic-event  # Custom event type to trigger another workflow
-          workflow: testing_vishnu.yml  # The workflow to trigger (testing_vishnu.yml)
-          ref: ${{ github.ref }}  # Use the same branch/tag for triggering the workflow
-          token: ${{ secrets.GT_TOKEN }}  # GitHub token to authorize the action
-          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "environment": "${{ inputs.environment }}", "test_component": "${{ inputs.test_component }}", "marker": "${{ inputs.marker }}"}'  # Passing inputs as payload
-
-  deploy:
-    needs: trigger_another_workflow  # Ensure this job runs only after the previous job completes
-    if: ${{ success() }}  # Proceed only if the trigger_another_workflow job was successful
+  pull_docker_image:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -71,41 +56,23 @@ jobs:
 
       - name: Pull Docker image
         run: |
-            echo "Running deploy job"
-            COMMIT_SHA="${{ github.sha }}"  # Get the current commit SHA
-            docker pull ghcr.io/vishnu4reddy/testing_project/$COMMIT_SHA:latest  # Pull the Docker image based on the commit SHA
+          COMMIT_SHA="${{ github.sha }}"  # Get the current commit SHA
+          echo "Running deploy job"
+          docker pull ghcr.io/vishnu4reddy/testing_project/$COMMIT_SHA:latest  # Pull the Docker image based on the commit SHA
 
       - name: Verify Docker Image
         run: |
-            # Check if the Docker image was successfully pulled
-            docker images ghcr.io/vishnu4reddy/testing_project/$COMMIT_SHA:latest || exit 1
-            echo "Docker image pulled successfully"
+          # Check if the Docker image was successfully pulled
+          docker images ghcr.io/vishnu4reddy/testing_project/$COMMIT_SHA:latest || exit 1
+          echo "Docker image pulled successfully"
 
+      - name: Run Docker Container
+        run: |
+          IMAGE_NAME="ghcr.io/vishnu4reddy/testing_project/$COMMIT_SHA:latest"
+          docker run $IMAGE_NAME
 
-          
-      # - name: Run Docker Container
-      #   run: |
-      #     IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/$(basename ${GITHUB_REPOSITORY}):latest"
-          
-      #     # Run the Docker container
-      #     docker run $IMAGE_NAME
-
-
-
-
-  # Docker Image Pull
-  # docker_image_pull:
-  #   needs: trigger_testing_vishnu
-  #   runs-on: ubuntu-latest
-  #   name: Pull Docker Image
-  #   steps:
-  #     - name: Pull Docker Image
-  #       run: |
-  #         docker pull ${{ env.image_registry }}/${{ env.image_name }}:${{ github.sha }}
-
-  # # Generate the components list dynamically based on input
   # set_components:
-  #   needs: docker_image_pull
+  #   needs: pull_docker_image
   #   runs-on: ubuntu-latest
   #   outputs:
   #     components: ${{ steps.set_components.outputs.components }}
@@ -119,9 +86,8 @@ jobs:
   #           echo "components=${{ github.event.inputs.test_component }}" >> $GITHUB_ENV
   #         fi
 
-  # # Run Tests for Each Component Dynamically Based on the Set Components
   # run_tests:
-  #   needs: [docker_image_pull, set_components]
+  #   needs: [pull_docker_image, set_components]
   #   runs-on: ubuntu-latest
   #   strategy:
   #     matrix:
@@ -139,7 +105,7 @@ jobs:
   #           -e TEST_COMPONENT="${{ matrix.component }}" \
   #           -e MARKER=${{ github.event.inputs.marker }} \
   #           -e COMPONENT_PATH="${COMPONENT_PATH}" \
-  #           ${{ env.image_registry }}/${{ env.image_name }}:${{ github.sha }} \
+  #           ghcr.io/vishnu4reddy/testing_project/$COMMIT_SHA:latest \
   #           pytest --path "${COMPONENT_PATH}" --marker ${{ github.event.inputs.marker }} --component "${{ matrix.component }}" --env ${{ github.event.inputs.environment }} --alluredir=/allure-results
 
   #     - name: Generate Allure Report for ${{ matrix.component }}
@@ -155,7 +121,6 @@ jobs:
   #         name: allure-report-${{ matrix.component }}
   #         path: allure-report
 
-  # # Send Email Notification (Once All Tests Are Completed)
   # send_email_notification:
   #   needs: run_tests
   #   runs-on: ubuntu-latest
