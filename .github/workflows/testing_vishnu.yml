@@ -53,13 +53,13 @@ jobs:
           COMMIT_SHA="${{ github.sha }}"
           
           # Build the Docker image
-          docker build -f "$DOCKERFILE_PATH" -t "${{ secrets.DOCKER_USERNAME }}/$COMMIT_SHA:latest" .
+          docker build -f "$DOCKERFILE_PATH" -t "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest" .
           
           # Push the Docker image to Docker Hub
-          docker push "${{ secrets.DOCKER_USERNAME }}/$COMMIT_SHA:latest"
+          docker push "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest"
           
           # Optionally, save the image as a tar file for backup
-          docker save "${{ secrets.DOCKER_USERNAME }}/$COMMIT_SHA:latest" -o "$COMMIT_SHA.tar"
+          docker save "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest" -o "$COMMIT_SHA.tar"
 
       - name: Output Commit SHA
         run: |
