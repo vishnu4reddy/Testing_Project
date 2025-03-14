@@ -52,32 +52,31 @@ jobs:
           ref: ${{ github.ref }}  # Use the same branch/tag for triggering the workflow
           token: ${{ secrets.GT_TOKEN }}  # GitHub token to authorize the action
           client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "environment": "${{ inputs.environment }}", "test_component": "${{ inputs.test_component }}", "marker": "${{ inputs.marker }}"}'
-
   pull_docker_image:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
+    
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ vars.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
+    
       - name: Pull Docker image
         run: |
           COMMIT_SHA="${{ github.sha }}"  # Get the current commit SHA
           echo "Running deploy job"
           docker pull ghcr.io/${{ vars.DOCKER_USERNAME }}/testing_project/$COMMIT_SHA:latest  # Pull the Docker image based on the commit SHA
-
+    
       - name: Verify Docker Image
         run: |
           # Check if the Docker image was successfully pulled
           docker images ghcr.io/${{ vars.DOCKER_USERNAME }}/testing_project/$COMMIT_SHA:latest || exit 1
           echo "Docker image pulled successfully"
-
+    
       - name: Run Docker Container
         run: |
           IMAGE_NAME="ghcr.io/${{ vars.DOCKER_USERNAME }}/testing_project/$COMMIT_SHA:latest"
