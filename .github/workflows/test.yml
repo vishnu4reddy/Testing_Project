@@ -1,10 +1,10 @@
 name: Test Automation Image
 
 on:
-  workflow_run:
-    workflows: ["Build and Deploy Docker Image"]
-    types:
-      - completed
+  # workflow_run:
+  #   workflows: ["Build and Deploy Docker Image"]
+  #   types:
+  #     - completed
   workflow_dispatch:
     inputs:
       environment:
