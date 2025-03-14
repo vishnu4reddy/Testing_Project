@@ -1,13 +1,14 @@
-name: Build and Deploy Docker Image  # Add a name for your workflow
+name: Build and Deploy Docker Image
 
 on:
-  repository_dispatch:
-    types: [generic-event]
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
-  build_and_deploy:  # Updated job name to something more descriptive
+  build_and_deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Print Current Branch
         run: |
