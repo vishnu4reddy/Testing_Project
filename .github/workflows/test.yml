@@ -52,6 +52,7 @@ jobs:
           ref: ${{ github.ref }}  # Use the same branch/tag for triggering the workflow
           token: ${{ secrets.GT_TOKEN }}  # GitHub token to authorize the action
           client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "environment": "${{ inputs.environment }}", "test_component": "${{ inputs.test_component }}", "marker": "${{ inputs.marker }}"}'
+          
   pull_docker_image:
     runs-on: ubuntu-latest
     permissions:
