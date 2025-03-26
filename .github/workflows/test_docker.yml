@@ -1,0 +1,67 @@
+name: Build and Deploy Docker Image
+
+on:
+  repository_dispatch:
+    types: [generic-event]
+  workflow_dispatch:
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Current Branch
+        run: |
+          echo "Current branch: ${{ github.ref }}"
+          
+      - name: Checkout repository
+        uses: actions/checkout@v3  # Use the latest version
+
+      - name: Set up Python
+        uses: actions/setup-python@v3  # Use the latest version
+        with:
+          python-version: '3.10'  # Use your desired Python version
+
+      - name: Install dependencies
+        run: |
+          # Set up Python environment and install dependencies
+          python -m venv .venv
+          . .venv/bin/activate
+          python -m pip install -U pip
+          pip install poetry
+          pip install tree
+          pwd
+          tree
+
+      - name: Check if Dockerfile exists and build Docker image
+        continue-on-error: true
+        run: |
+          ls -lh
+          DOCKERFILE_PATH="./Dockerfile"
+          echo "Dockerfile path: $DOCKERFILE_PATH"
+          # Check if Dockerfile exists
+          if [ ! -f "$DOCKERFILE_PATH" ]; then
+            echo "Error: Dockerfile not found in the current directory!" 
+            exit 1
+          else
+            echo "Dockerfile found at $DOCKERFILE_PATH"
+          fi
+          
+          # Log in to Docker Hub using GitHub Secrets
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ vars.DOCKER_USERNAME }}" --password-stdin
+          
+          # Get the commit SHA for tagging the image
+          COMMIT_SHA="${{ github.sha }}"
+          
+          # Build the Docker image
+          docker build -f "$DOCKERFILE_PATH" -t "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest" .
+          
+          # Push the Docker image to Docker Hub
+          # docker push "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest"
+          docker push "${{ vars.DOCKER_USERNAME }}/testing_project:v1
+          
+          # Optionally, save the image as a tar file for backup
+          docker save "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest" -o "$COMMIT_SHA.tar"
+
+      - name: Output Commit SHA
+        run: |
+          echo "SHA: ${{ github.sha }}"  # Already being used earlier in Docker build process
