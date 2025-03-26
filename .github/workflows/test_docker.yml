@@ -1,8 +1,8 @@
 name: Build and Deploy Docker Image
 
 on:
-  # repository_dispatch:
-    # types: [generic-event]
+  repository_dispatch:
+    types: [generic-event]
   workflow_dispatch:
 
 jobs:
@@ -52,12 +52,12 @@ jobs:
           # Get the commit SHA for tagging the image
           COMMIT_SHA="${{ github.sha }}"
           
-          # Build the Docker image
-          docker build -f "$DOCKERFILE_PATH" -t "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest" .
+          # # Build the Docker image
+          # docker build -f "$DOCKERFILE_PATH" -t "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest" .
           
           # Push the Docker image to Docker Hub
-          # docker push "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest"
-          docker push "${{ vars.DOCKER_USERNAME }}/testing_project:v1
+          docker push "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest"
+          # docker push "${{ vars.DOCKER_USERNAME }}/testing_project:v1
           
           # Optionally, save the image as a tar file for backup
           docker save "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest" -o "$COMMIT_SHA.tar"
