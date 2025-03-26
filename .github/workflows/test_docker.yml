@@ -1,8 +1,8 @@
 name: Build and Deploy Docker Image
 
 on:
-  repository_dispatch:
-    types: [generic-event]
+  # repository_dispatch:
+    # types: [generic-event]
   workflow_dispatch:
 
 jobs:
