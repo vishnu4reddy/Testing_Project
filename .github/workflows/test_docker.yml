@@ -50,7 +50,7 @@ jobs:
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ vars.DOCKER_USERNAME }}" --password-stdin
           
           # Get the commit SHA for tagging the image
-          COMMIT_SHA="${{ github.sha }}"
+          # COMMIT_SHA="59f806a6a32d9f2634e7c66db9314466b4e1d43f"
           
           # # Build the Docker image
           # docker build -f "$DOCKERFILE_PATH" -t "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest" .
