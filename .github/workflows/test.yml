@@ -47,18 +47,18 @@ jobs:
       - name: Trigger Testing Vishnu Workflow
         uses: peter-evans/repository-dispatch@v3
         with:
-          event-type: generic-event  # Custom event type to trigger another workflow
+          # event-type: generic-event  # Custom event type to trigger another workflow
           workflow: test_docker.yml  # The workflow to trigger (testing_vishnu.yml)
           ref: ${{ github.ref }}  # Use the same branch/tag for triggering the workflow
           token: ${{ secrets.GT_TOKEN }}  # GitHub token to authorize the action
           client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "environment": "${{ inputs.environment }}", "test_component": "${{ inputs.test_component }}", "marker": "${{ inputs.marker }}"}'
           
   pull_docker_image:
+    needs: trigger_another_workflow
     runs-on: ubuntu-latest
     permissions:
       contents: write
 
-    needs: trigger_another_workflow
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
