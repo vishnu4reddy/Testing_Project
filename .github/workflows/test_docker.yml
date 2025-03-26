@@ -64,7 +64,7 @@ jobs:
           
       - name: pull docker image
         run: |
-          COMMIT_SHA = ${{ github.sha }}
+          COMMIT_SHA = "${{ github.sha }}"
           docker pull "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA"
 
       # - name: Output Commit SHA
