@@ -71,18 +71,18 @@ jobs:
         run: |
           COMMIT_SHA="${{ github.sha }}"  # Get the current commit SHA
           echo "Running deploy job"
-          docker pull ${{ vars.DOCKER_USERNAME }}/testing_project/$COMMIT_SHA:latest  # Pull the Docker image based on the commit SHA
+          docker pull ${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest  # Pull the Docker image based on the commit SHA
     
-      - name: Verify Docker Image
-        run: |
-          # Check if the Docker image was successfully pulled
-          docker images ${{ vars.DOCKER_USERNAME }}/testing_project/$COMMIT_SHA:latest || exit 1
-          echo "Docker image pulled successfully"
+      # - name: Verify Docker Image
+      #   run: |
+      #     # Check if the Docker image was successfully pulled
+      #     docker images ${{ vars.DOCKER_USERNAME }}/testing_project/$COMMIT_SHA:latest || exit 1
+      #     echo "Docker image pulled successfully"
     
-      - name: Run Docker Container
-        run: |
-          IMAGE_NAME="${{ vars.DOCKER_USERNAME }}/testing_project/$COMMIT_SHA:latest"
-          docker run $IMAGE_NAME
+      # - name: Run Docker Container
+      #   run: |
+      #     IMAGE_NAME="${{ vars.DOCKER_USERNAME }}/testing_project/$COMMIT_SHA:latest"
+      #     docker run $IMAGE_NAME
 
   # set_components:
   #   needs: pull_docker_image
