@@ -62,11 +62,12 @@ jobs:
           # Optionally, save the image as a tar file for backup
           docker save "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest" -o "$COMMIT_SHA.tar"
           
-      - name: pull docker image
+      - name: Pull Docker image
         run: |
-          COMMIT_SHA = "${{ github.sha }}"
-          docker pull "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA"
-
+          COMMIT_SHA="${{ github.sha }}"  # Get the current commit SHA
+          echo "Running deploy job"
+          echo "$COMMIT_SHA"
+          docker pull ${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest 
       # - name: Output Commit SHA
       #   run: |
           # echo "SHA: ${{ github.sha }}"  # Already being used earlier in Docker build process
