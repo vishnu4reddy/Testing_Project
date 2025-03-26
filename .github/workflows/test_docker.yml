@@ -50,10 +50,10 @@ jobs:
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ vars.DOCKER_USERNAME }}" --password-stdin
           
           # Get the commit SHA for tagging the image
-          # COMMIT_SHA="59f806a6a32d9f2634e7c66db9314466b4e1d43f"
+          COMMIT_SHA="${{ github.sha }}"
           
           # # Build the Docker image
-          # docker build -f "$DOCKERFILE_PATH" -t "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest" .
+          docker build -f "$DOCKERFILE_PATH" -t "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest" .
           
           # Push the Docker image to Docker Hub
           docker push "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest"
@@ -61,7 +61,11 @@ jobs:
           
           # Optionally, save the image as a tar file for backup
           docker save "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA:latest" -o "$COMMIT_SHA.tar"
-
-      - name: Output Commit SHA
+          
+      - name: pull docker image
         run: |
-          echo "SHA: ${{ github.sha }}"  # Already being used earlier in Docker build process
+          docker pull "${{ vars.DOCKER_USERNAME }}/$COMMIT_SHA"
+
+      # - name: Output Commit SHA
+      #   run: |
+          # echo "SHA: ${{ github.sha }}"  # Already being used earlier in Docker build process
