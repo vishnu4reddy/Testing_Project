@@ -1,8 +1,8 @@
 name: Test Automation Image
 
 on:
-  workflow_run:
-    workflows: ["DockerImage"]
+  # workflow_run:
+  #   workflows: ["DockerImage"]
     # types:
     #   - completed
     
