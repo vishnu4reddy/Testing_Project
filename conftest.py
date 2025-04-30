@@ -14,3 +14,9 @@
 #         logging.FileHandler(os.path.join(logs_folder, "app.log"))  # Save logs to the log file
 #     ]
 # )
+
+import pytest
+
+@pytest.fixture
+def supply_AA_BB_CC():
+    return ['AA', 'BB', 'CC']
