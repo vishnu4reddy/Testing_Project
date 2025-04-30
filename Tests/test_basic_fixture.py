@@ -1,7 +1,7 @@
 import pytest
 
 
-@pytest.fixture
+
 def supply_AA_BB_CC():
     aa = 25
     bb = 35
