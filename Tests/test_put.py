@@ -15,7 +15,7 @@ import pytest
 
 
 
-@pytest.mark.requirements(names="CARE-3206")
+
 
 
 def test_version2_fail():
